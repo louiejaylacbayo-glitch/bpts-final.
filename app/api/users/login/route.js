@@ -1,29 +1,20 @@
 import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
-// Connect to your database
-async function connectToDatabase() {
-  return await mysql.createConnection({
-    host: "localhost",
-    user: "root",       
-    password: "",       
-    database: "bpts",   
-  });
-}
+// Import the Aiven database pool we configured earlier!
+// Note: Depending on your folder structure, you might need to adjust this path 
+// (e.g., "../../../../lib/db" if "@/lib/db" doesn't work)
+import db from "@/lib/db"; 
 
 export async function POST(req) {
   try {
     const { username, password } = await req.json();
-    const connection = await connectToDatabase();
 
-    // Fetch the user from the database
-    const [rows] = await connection.execute(
+    // Fetch the user directly using our secure Aiven database pool
+    const [rows] = await db.execute(
       "SELECT * FROM account_table WHERE username = ?",
       [username]
     );
-    await connection.end();
 
     const user = rows[0];
 
