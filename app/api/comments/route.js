@@ -51,7 +51,7 @@ export async function GET(req) {
 
     query += ` ORDER BY pc.date_submitted DESC`;
 
-    // Use the global 'db' pool
+    // Use the global 'db' pool with .execute
     const [rows] = await db.execute(query, params);
     
     return NextResponse.json(rows, { status: 200 });
@@ -61,7 +61,37 @@ export async function GET(req) {
   }
 }
 
-// 2. PATCH: Saves the admin reply
+// 2. POST: Handle resident feedback submission
+export async function POST(req) {
+  try {
+    const { name, comment, projectId } = await req.json();
+
+    // Use db.execute for all database operations
+    await db.execute(
+      "INSERT INTO residents_table (name) VALUES (?) ON DUPLICATE KEY UPDATE name=name",
+      [name]
+    );
+    
+    const [residentRows] = await db.execute(
+      "SELECT resident_id FROM residents_table WHERE name = ?", 
+      [name]
+    );
+    
+    const residentId = residentRows[0].resident_id;
+
+    await db.execute(
+      "INSERT INTO project_comments (project_id, resident_id, comment_text, date_submitted) VALUES (?, ?, ?, NOW())",
+      [projectId, residentId, comment]
+    );
+
+    return NextResponse.json({ message: "Success" }, { status: 201 });
+  } catch (error) {
+    console.error("POST error:", error);
+    return NextResponse.json({ error: "Failed to submit" }, { status: 500 });
+  }
+}
+
+// 3. PATCH: Saves the admin reply
 export async function PATCH(req) {
   try {
     const body = await req.json();
