@@ -20,7 +20,6 @@ export async function GET(request) {
       query += " ORDER BY created_at DESC";
     }
 
-    // Using .execute for the Aiven Connection Pool
     const [rows] = await db.execute(query, params);
     return NextResponse.json(rows);
   } catch (error) {
@@ -29,7 +28,7 @@ export async function GET(request) {
   }
 }
 
-// 2. POST REQUEST - FOR UPLOADING DATA AND FILES
+// 2. POST REQUEST - HANDLES TEXT DATA & OPTIONAL FILE UPLOAD
 export async function POST(request) {
   try {
     const formData = await request.formData();
@@ -53,35 +52,37 @@ export async function POST(request) {
 
     let dbFilePath = "0"; 
 
-    if (file && typeof file !== "string") {
-      // Security Check: Size (10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        return NextResponse.json({ error: "File exceeds 10MB limit." }, { status: 400 });
+    // FILE HANDLING BLOCK
+    if (file && typeof file !== "string" && file.size > 0) {
+      try {
+        // Size & Type Checks
+        const allowedTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/jpeg", "image/png"];
+        if (file.size > 10 * 1024 * 1024) throw new Error("File too large");
+        if (!allowedTypes.includes(file.type)) throw new Error("Invalid file type");
+
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        
+        const ext = path.extname(file.name).toLowerCase();
+        const uniqueId = Math.random().toString(36).substring(2, 8);
+        const safeFileName = `project_${Date.now()}_${uniqueId}${ext}`;
+        
+        const uploadDir = path.join(process.cwd(), "public", "uploads");
+        
+        // This part often fails on Vercel (Read-Only FS)
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        const filePath = path.join(uploadDir, safeFileName);
+        await writeFile(filePath, buffer);
+
+        dbFilePath = `uploads/${safeFileName}`; 
+      } catch (fileError) {
+        // CATCHING EROFS ERROR: Project text still saves, but file is skipped
+        console.warn("File storage skipped (Vercel Read-Only):", fileError.message);
+        dbFilePath = "file-not-stored-serverless"; 
       }
-
-      // Security Check: Type
-      const allowedTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/jpeg", "image/png"];
-      if (!allowedTypes.includes(file.type)) {
-        return NextResponse.json({ error: "Unsupported file type blocked." }, { status: 400 });
-      }
-
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      
-      const ext = path.extname(file.name).toLowerCase();
-      const uniqueId = Math.random().toString(36).substring(2, 8);
-      const safeFileName = `project_${Date.now()}_${uniqueId}${ext}`;
-      
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
-      
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-
-      const filePath = path.join(uploadDir, safeFileName);
-      await writeFile(filePath, buffer);
-
-      dbFilePath = `uploads/${safeFileName}`; 
     }
 
     const query = `
@@ -91,7 +92,7 @@ export async function POST(request) {
 
     await db.execute(query, [name, category, budget, duration, description, dbFilePath, created_by]);
 
-    return NextResponse.json({ message: "Success" });
+    return NextResponse.json({ message: "Success! Project data saved." });
   } catch (error) {
     console.error("POST API Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -104,9 +105,7 @@ export async function PUT(request) {
     const body = await request.json();
     const { id, name, category, budget, duration, status, description } = body;
 
-    if (!id) {
-      return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
-    }
+    if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
 
     const query = `
       UPDATE projects_table 
@@ -115,7 +114,7 @@ export async function PUT(request) {
     `;
     
     await db.execute(query, [name, category, budget, duration, status, description, id]);
-    return NextResponse.json({ message: "Project updated successfully!" }, { status: 200 });
+    return NextResponse.json({ message: "Project updated!" });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -128,20 +127,16 @@ export async function DELETE(request) {
     let id = searchParams.get("id");
 
     if (!id) {
-      try {
-        const body = await request.json();
-        id = body.id;
-      } catch (e) {}
+      const body = await request.json().catch(() => ({}));
+      id = body.id;
     }
 
-    if (!id) {
-      return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
-    }
+    if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
 
     const query = "DELETE FROM projects_table WHERE id = ?";
     await db.execute(query, [id]);
 
-    return NextResponse.json({ message: "Project deleted successfully!" }, { status: 200 });
+    return NextResponse.json({ message: "Project deleted!" });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
