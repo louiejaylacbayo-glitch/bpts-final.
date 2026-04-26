@@ -1,8 +1,7 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import path from "path";
-import fs from "fs";
+// Import Vercel Blob to handle cloud uploads
+import { put } from "@vercel/blob";
 
 // 1. GET REQUEST - FOR DASHBOARD FILTERING
 export async function GET(request) {
@@ -28,7 +27,7 @@ export async function GET(request) {
   }
 }
 
-// 2. POST REQUEST - HANDLES TEXT DATA & OPTIONAL FILE UPLOAD
+// 2. POST REQUEST - HANDLES TEXT DATA & VERCEL BLOB UPLOAD
 export async function POST(request) {
   try {
     const formData = await request.formData();
@@ -52,36 +51,26 @@ export async function POST(request) {
 
     let dbFilePath = "0"; 
 
-    // FILE HANDLING BLOCK
+    // --- NEW VERCEL BLOB UPLOAD LOGIC ---
     if (file && typeof file !== "string" && file.size > 0) {
       try {
-        // Size & Type Checks
         const allowedTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/jpeg", "image/png"];
         if (file.size > 10 * 1024 * 1024) throw new Error("File too large");
         if (!allowedTypes.includes(file.type)) throw new Error("Invalid file type");
 
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        
-        const ext = path.extname(file.name).toLowerCase();
+        // Generate a unique name for the cloud
         const uniqueId = Math.random().toString(36).substring(2, 8);
-        const safeFileName = `project_${Date.now()}_${uniqueId}${ext}`;
-        
-        const uploadDir = path.join(process.cwd(), "public", "uploads");
-        
-        // This part often fails on Vercel (Read-Only FS)
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
-        }
+        const fileName = `projects/${Date.now()}_${uniqueId}_${file.name}`;
 
-        const filePath = path.join(uploadDir, safeFileName);
-        await writeFile(filePath, buffer);
-
-        dbFilePath = `uploads/${safeFileName}`; 
+        // Send the file directly to Vercel Blob
+        const blob = await put(fileName, file, { access: 'public' });
+        
+        // Save the permanent Cloud URL to your database
+        dbFilePath = blob.url; 
+        
       } catch (fileError) {
-        // CATCHING EROFS ERROR: Project text still saves, but file is skipped
-        console.warn("File storage skipped (Vercel Read-Only):", fileError.message);
-        dbFilePath = "file-not-stored-serverless"; 
+        console.error("Blob Upload Error:", fileError.message);
+        dbFilePath = "upload-failed"; 
       }
     }
 
@@ -92,7 +81,7 @@ export async function POST(request) {
 
     await db.execute(query, [name, category, budget, duration, description, dbFilePath, created_by]);
 
-    return NextResponse.json({ message: "Success! Project data saved." });
+    return NextResponse.json({ message: "Success! Project data and file saved." });
   } catch (error) {
     console.error("POST API Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
