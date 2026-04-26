@@ -54,10 +54,6 @@ export async function POST(request) {
     // --- NEW VERCEL BLOB UPLOAD LOGIC ---
     if (file && typeof file !== "string" && file.size > 0) {
       try {
-        const allowedTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/jpeg", "image/png"];
-        if (file.size > 10 * 1024 * 1024) throw new Error("File too large");
-        if (!allowedTypes.includes(file.type)) throw new Error("Invalid file type");
-
         // Generate a unique name for the cloud
         const uniqueId = Math.random().toString(36).substring(2, 8);
         const fileName = `projects/${Date.now()}_${uniqueId}_${file.name}`;
@@ -69,8 +65,8 @@ export async function POST(request) {
         dbFilePath = blob.url; 
         
       } catch (fileError) {
-        console.error("Blob Upload Error:", fileError.message);
-        dbFilePath = "upload-failed"; 
+        // STOP HIDING THE ERROR - Send it directly to the frontend screen so we can see it!
+        return NextResponse.json({ error: "BLOB UPLOAD FAILED: " + fileError.message }, { status: 400 });
       }
     }
 
