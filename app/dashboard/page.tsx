@@ -12,7 +12,7 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
-  // Notification State
+  // Notification State (Top Bar)
   const [hasNewUpdate, setHasNewUpdate] = useState(false); 
   const [showNotifications, setShowNotifications] = useState(false);
   const [latestNotification, setLatestNotification] = useState(""); 
@@ -25,8 +25,10 @@ export default function Dashboard() {
   const [editingProject, setEditingProject] = useState<any | null>(null);
   const [projectToDelete, setProjectToDelete] = useState<any | null>(null); 
 
+  // NEW: Mobile Menu State
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Helper to show the side notification
   const showToast = (message: string, type: "success" | "error") => {
     setToast({ show: true, message, type });
     setTimeout(() => {
@@ -209,6 +211,7 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-gray-50 font-sans relative overflow-hidden">
       
+      {/* SIDE TOAST NOTIFICATION */}
       {toast.show && (
         <div className={`fixed top-8 right-8 z-[100] flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl transition-all duration-300 ease-in-out border ${
           toast.type === "success" 
@@ -220,6 +223,7 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* NEW: Mobile Background Overlay (Darkens screen when menu is open on phone) */}
       {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 md:hidden" 
@@ -227,8 +231,10 @@ export default function Dashboard() {
         ></div>
       )}
 
+      {/* SIDEBAR - UPDATED FOR MOBILE SLIDE-OUT */}
       <aside className={`fixed md:sticky top-0 left-0 z-50 w-64 bg-blue-900 text-white flex flex-col p-6 shadow-xl h-screen transition-transform duration-300 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
         <div className="flex-1">
+          {/* Close button inside sidebar for mobile */}
           <div className="flex justify-between items-start mb-10">
             <h1 className="text-lg font-bold leading-tight">
               Barangay <br />
@@ -241,49 +247,60 @@ export default function Dashboard() {
           
           <nav className="space-y-3 text-sm">
             <Link href="/dashboard" className="bg-blue-600 p-3 rounded-xl cursor-pointer font-semibold shadow-sm flex items-center gap-3">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
               Dashboard
             </Link>
-            <Link href="/upload" className="opacity-80 hover:opacity-100 p-3 hover:bg-blue-800 rounded-xl transition flex items-center gap-3">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+            <Link href="/upload" className="opacity-80 hover:opacity-100 cursor-pointer p-3 hover:bg-blue-800 rounded-xl transition flex items-center gap-3">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
               Upload Project
             </Link>
-            <Link href="/update" className="opacity-80 hover:opacity-100 p-3 hover:bg-blue-800 rounded-xl transition flex items-center gap-3">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            <Link href="/update" className="opacity-80 hover:opacity-100 cursor-pointer p-3 hover:bg-blue-800 rounded-xl transition flex items-center gap-3">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
               Update Project
             </Link>
-            <Link href="/comments" className="opacity-80 hover:opacity-100 p-3 hover:bg-blue-800 rounded-xl transition flex items-center gap-3">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+            <Link href="/comments" className="opacity-80 hover:opacity-100 cursor-pointer p-3 hover:bg-blue-800 rounded-xl transition flex items-center gap-3">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
               View Comments
             </Link>
-            <Link href="/settings" className="opacity-80 hover:opacity-100 p-3 hover:bg-blue-800 rounded-xl transition flex items-center gap-3">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            <Link href="/settings" className="opacity-80 hover:opacity-100 cursor-pointer p-3 hover:bg-blue-800 rounded-xl transition flex items-center gap-3">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               Settings
             </Link>
           </nav>
         </div>
         
-        <div onClick={logout} className="bg-blue-800/80 hover:bg-blue-800 p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-colors shadow-sm group">
+        <div onClick={logout} className="bg-blue-800/80 hover:bg-blue-800 p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-colors shadow-sm group" title="Logout">
           <div className="w-10 h-10 rounded-full bg-teal-400 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
             {currentUserName ? currentUserName.charAt(0).toUpperCase() : 'A'}
           </div>
           <div className="flex-col overflow-hidden flex-1 text-left">
             <span className="block text-sm font-bold text-white truncate">{currentUserName}</span>
-            <span className="block text-xs text-blue-300 truncate">Administrator</span>
+            <span className="block text-xs text-blue-300 truncate font-normal">Administrator</span>
           </div>
-          <svg className="w-5 h-5 text-blue-300 group-hover:text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+          <svg className="w-5 h-5 text-blue-300 group-hover:text-white transition-colors flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
         </div>
       </aside>
 
+      {/* MAIN CONTENT */}
       <div className="flex-1 overflow-y-auto relative w-full">
+        {/* TOP HEADER - UPDATED WITH HAMBURGER MENU */}
         <div className="bg-white p-4 flex flex-wrap md:flex-nowrap justify-between items-center border-b shadow-sm gap-4 sticky top-0 z-10 w-full">
+          
           <div className="flex items-center gap-3 w-full md:w-auto md:flex-1">
-            <button className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg" onClick={() => setIsMobileMenuOpen(true)}>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+            {/* Hamburger Button */}
+            <button 
+              className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
+
+            {/* Search Bar */}
             <div className="relative flex-1 max-w-xl text-left">
               <span className="absolute left-3 top-2.5 text-gray-400">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </span>
               <input 
                 type="text" placeholder="Search projects..." 
@@ -295,7 +312,7 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-4 md:gap-6 justify-end w-full md:w-auto">
             <div className="relative cursor-pointer" onClick={handleNotificationClick}>
-              <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+              <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
               {hasNewUpdate && <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>}
               {showNotifications && (
                 <div className="absolute right-0 mt-2 w-56 md:w-64 bg-white border border-gray-100 shadow-lg rounded-xl p-3 z-50">
@@ -309,7 +326,7 @@ export default function Dashboard() {
 
             <Link href="/settings" className="flex items-center gap-3 border-l pl-4 md:pl-6 cursor-pointer hover:opacity-80 transition-all">
               <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
               </div>
               <div className="text-left hidden md:block">
                 <p className="text-sm font-bold text-gray-800">{currentUserName}</p>
@@ -325,6 +342,7 @@ export default function Dashboard() {
             <p className="text-gray-400 text-sm font-medium">Overview of all barangay project</p>
           </div>
 
+          {/* You already had this perfect! grid-cols-1 on phone, grid-cols-4 on desktop */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
             <Card title="Total Projects" value={total} type="total" />
             <Card title="Ongoing Projects" value={ongoing} type="ongoing" />
@@ -339,7 +357,7 @@ export default function Dashboard() {
               <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto">
                 <div className="relative w-full md:w-auto">
                   <span className="absolute left-3 top-2.5 text-gray-400">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                   </span>
                   <input 
                     type="text" placeholder="Search in table..." 
@@ -389,12 +407,10 @@ export default function Dashboard() {
                           </span>
                         </td>
                         <td className="py-4 text-center">
-                          {p.files && p.files !== "0" && p.files !== "upload-failed" ? (
+                          {p.files && p.files !== "0" ? (
                             <div className="flex justify-center gap-3">
-                              {/* FIXED: Removed the "/" prefix to handle full Blob URLs correctly */}
-                              <a href={p.files} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-800 hover:scale-110 transition-transform flex items-center justify-center gap-1 font-bold text-[10px]">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                VIEW
+                              <a href={`/${p.files}`} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-800 hover:scale-110 transition-transform flex items-center justify-center gap-1">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                               </a>
                             </div>
                           ) : (
@@ -404,13 +420,13 @@ export default function Dashboard() {
                         <td className="py-4">
                           <div className="flex justify-center gap-2">
                             <button onClick={() => setViewingProject(p)} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition" title="View">
-                              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                             </button>
                             <button onClick={() => setEditingProject({...p})} className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition" title="Edit">
-                              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                             </button>
                             <button onClick={() => confirmDelete(p)} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition" title="Delete">
-                              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </button>
                           </div>
                         </td>
@@ -423,7 +439,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* VIEW MODAL - UPDATED WITH PHOTO PREVIEW */}
+        {/* --- MODALS STAY THE SAME (View, Edit, Delete) --- */}
         {viewingProject && (
           <div className="fixed inset-0 z-[60] flex justify-center items-center p-4 bg-black/40 backdrop-blur-sm">
             <div className="bg-white rounded-2xl shadow-2xl border w-full max-w-lg overflow-hidden relative">
@@ -432,21 +448,6 @@ export default function Dashboard() {
                 <button onClick={() => setViewingProject(null)} className="text-white text-2xl hover:opacity-70">&times;</button>
               </div>
               <div className="p-6 space-y-4 text-sm text-gray-700 text-left">
-                {/* NEW: Image Preview in Modal */}
-                {viewingProject.files && viewingProject.files !== "0" && viewingProject.files !== "upload-failed" && (
-                  <div className="mb-4">
-                    <p className="text-[10px] font-bold text-gray-400 mb-2 uppercase">Project Attachment:</p>
-                    <img 
-                      src={viewingProject.files} 
-                      alt="Project Preview" 
-                      className="w-full h-48 object-cover rounded-xl border shadow-sm"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  </div>
-                )}
-                
                 <div className="grid grid-cols-3 border-b pb-2"><span className="font-semibold text-gray-400">Name:</span><span className="col-span-2 font-bold text-blue-900">{viewingProject.name}</span></div>
                 <div className="grid grid-cols-3 border-b pb-2"><span className="font-semibold text-gray-400">Budget:</span><span className="col-span-2 font-mono">₱{Number(viewingProject.budget).toLocaleString()}</span></div>
                 <div className="grid grid-cols-3 border-b pb-2"><span className="font-semibold text-gray-400">Status:</span><span className="col-span-2"><span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${getStatusStyle(viewingProject.status)}`}>{viewingProject.status}</span></span></div>
@@ -459,9 +460,9 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* EDIT MODAL */}
         {editingProject && (
           <div className="fixed inset-0 z-[60] flex justify-center items-center p-4 bg-black/40 backdrop-blur-sm">
+            {/* Same editing modal code you had before... */}
             <div className="bg-white rounded-2xl shadow-2xl border w-full max-w-lg overflow-hidden relative">
               <div className="bg-green-700 text-white px-6 py-4 flex justify-between items-center">
                 <h3 className="font-bold text-lg">Edit Project Info</h3>
@@ -519,29 +520,37 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* DELETE MODAL */}
         {projectToDelete && (
           <div className="fixed inset-0 z-[60] flex justify-center items-center p-4 bg-black/40 backdrop-blur-sm">
             <div className="bg-white rounded-2xl shadow-2xl border w-full max-w-sm overflow-hidden relative text-center p-8">
               <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
               </div>
               <h3 className="font-black text-xl text-gray-800 mb-2">Delete Project?</h3>
               <p className="text-gray-500 text-sm mb-6">
-                Are you sure you want to delete <span className="font-bold text-gray-800">"{projectToDelete.name}"</span>?
+                Are you sure you want to delete <span className="font-bold text-gray-800">"{projectToDelete.name}"</span>? This action cannot be undone.
               </p>
               <div className="flex justify-center gap-3">
-                <button onClick={() => setProjectToDelete(null)} className="bg-gray-100 text-gray-700 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-200 transition">Cancel</button>
-                <button onClick={executeDelete} className="bg-red-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:bg-red-700 transition">Yes, Delete</button>
+                <button onClick={() => setProjectToDelete(null)} className="bg-gray-100 text-gray-700 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-200 transition">
+                  Cancel
+                </button>
+                <button onClick={executeDelete} className="bg-red-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:bg-red-700 transition active:scale-95">
+                  Yes, Delete
+                </button>
               </div>
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
 }
 
+// MAKE SURE TO KEEP YOUR CARD COMPONENT DOWN HERE!
+// function Card({ title, value, type }) { ... }
+
+// Reusable Card Component
 function Card({ title, value, type }: { title: string, value: number, type: 'total' | 'ongoing' | 'completed' | 'pending' }) {
   const configs = {
     total: {
