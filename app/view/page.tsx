@@ -133,9 +133,12 @@ export default function PublicProjectMonitoring() {
     return cleanPath.includes('uploads/') ? `/${cleanPath}` : `/uploads/${cleanPath}`;
   };
 
-  // Helper to strictly check if a file truly exists
-  const hasValidFile = (fileStr?: string) => {
-    return fileStr && fileStr.trim() !== "" && fileStr !== "null" && fileStr !== "undefined";
+  // --- UPDATED HELPER FUNCTION HERE ---
+  // Helper to strictly check if a file truly exists and isn't just a placeholder like "0"
+  const hasValidFile = (fileStr?: string | number) => {
+    if (fileStr === undefined || fileStr === null) return false;
+    const str = String(fileStr).trim();
+    return str !== "" && str !== "null" && str !== "undefined" && str !== "0";
   };
 
   // --- Render ---
@@ -297,7 +300,6 @@ export default function PublicProjectMonitoring() {
                   </div>
                 </div>
 
-                {/* THIS IS THE UPDATED ATTACHED FILES SECTION */}
                 <div className="bg-white p-5 md:p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 xl:col-span-2">
                   <div className="bg-rose-50 p-3 rounded-full text-rose-500 shrink-0">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
