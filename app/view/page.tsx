@@ -133,6 +133,11 @@ export default function PublicProjectMonitoring() {
     return cleanPath.includes('uploads/') ? `/${cleanPath}` : `/uploads/${cleanPath}`;
   };
 
+  // Helper to strictly check if a file truly exists
+  const hasValidFile = (fileStr?: string) => {
+    return fileStr && fileStr.trim() !== "" && fileStr !== "null" && fileStr !== "undefined";
+  };
+
   // --- Render ---
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-[#f0f4f8] text-gray-400 font-medium">
@@ -176,10 +181,10 @@ export default function PublicProjectMonitoring() {
         </Link>
       </header>
 
-      {/* Main Layout Area - CHANGED TO flex-col lg:flex-row */}
+      {/* Main Layout Area */}
       <div className="flex flex-col lg:flex-row flex-1 overflow-hidden p-4 md:p-6 gap-6 max-w-[1600px] mx-auto w-full">
         
-        {/* Project Sidebar - CHANGED TO shrink-0 and max-height for mobile */}
+        {/* Project Sidebar */}
         <aside className="w-full lg:w-[350px] xl:w-[400px] shrink-0 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-y-auto p-5 md:p-6 scrollbar-hide flex flex-col max-h-[40vh] lg:max-h-none lg:h-full">
           <div className="mb-4 md:mb-6 shrink-0">
             <h2 className="text-xl font-bold text-gray-800 text-left">All Projects</h2>
@@ -230,7 +235,6 @@ export default function PublicProjectMonitoring() {
           {selectedProject ? (
             <div className="max-w-5xl mx-auto space-y-6 text-left animate-in fade-in duration-500">
               
-              {/* Top Stats Grid - CHANGED TO xl:grid-cols-2 so cards don't squish on small/split screens */}
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 
                 <div className="bg-white p-5 md:p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4">
@@ -293,18 +297,19 @@ export default function PublicProjectMonitoring() {
                   </div>
                 </div>
 
+                {/* THIS IS THE UPDATED ATTACHED FILES SECTION */}
                 <div className="bg-white p-5 md:p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 xl:col-span-2">
                   <div className="bg-rose-50 p-3 rounded-full text-rose-500 shrink-0">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">Attached Files</p>
-                    {selectedProject.files ? (
-                      <a href={getFileUrl(selectedProject.files)} target="_blank" rel="noreferrer" className="text-sm font-bold text-blue-600 hover:underline truncate block">
+                    {hasValidFile(selectedProject.files) ? (
+                      <a href={getFileUrl(selectedProject.files!)} target="_blank" rel="noreferrer" className="text-sm font-bold text-blue-600 hover:underline truncate block">
                         View Document
                       </a>
                     ) : (
-                      <p className="text-sm font-bold text-gray-800">No files attached</p>
+                      <p className="text-sm font-medium text-gray-500 italic">No document attached</p>
                     )}
                   </div>
                 </div>
